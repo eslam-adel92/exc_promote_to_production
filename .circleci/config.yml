@@ -25,7 +25,7 @@ jobs:
                 list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
                 --no-paginate --output text > ~/old_id.txt
               cat ~/old_id.txt
-              yum install -y tar
+              yum install -y tar gzip
       - persist_to_workspace:
           root: ~/
           paths:
@@ -53,7 +53,7 @@ jobs:
       #     keys:
       #       - "bucket-name"
       - run: |
-              yum install -y tar
+              yum install -y tar gzip
               PreviousPipelineID=`cat ~/old_id.txt`
               aws s3 rm "s3://${OldPipelineID}" --recursive
               aws cloudformation delete-stack --stack-name "${PreviousPipelineID}"
