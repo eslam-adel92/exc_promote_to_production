@@ -1,5 +1,5 @@
 Parameters:
-  CDNID:
+  PipelineID:
     Description: Unique identifier.
     Type: String
 
@@ -16,7 +16,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !Sub "${CDNID}.s3.amazonaws.com"
+          - DomainName: !Sub "${PipelineID}.s3.amazonaws.com"
             Id: webpage
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
@@ -29,7 +29,7 @@ Resources:
           ViewerProtocolPolicy: allow-all
 
 Outputs:
-  CDNID:
-    Value: !Sub ${CDNID}
+  PipelineID:
+    Value: !Sub ${PipelineID}
     Export:
-      Name: CDNID
+      Name: PipelineID

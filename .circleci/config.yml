@@ -43,7 +43,7 @@ jobs:
               aws cloudformation deploy \
                 --template-file cloudfront.yml \
                 --stack-name production-distro \
-                --parameter-overrides CDN_ID="${CIRCLE_WORKFLOW_ID}"
+                --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
 
   clean_up_old_front_end:
     <<: *defaults
