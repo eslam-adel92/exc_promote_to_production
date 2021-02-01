@@ -54,7 +54,7 @@ jobs:
           keys:
             - "bucket-name"
       - run: |
-              PreviousPipelineID=`cat ~/text`
+              PreviousPipelineID=`cat ~/old_id.txt`
               aws s3 rm "s3://${OldPipelineID}" --recursive
               aws cloudformation delete-stack --stack-name "${PreviousPipelineID}"
 
