@@ -52,10 +52,11 @@ jobs:
       # - restore_cache:
       #     keys:
       #       - "bucket-name"
+      - run: |
+              yum install -y tar gzip      
       - attach_workspace:
           at: ~/
       - run: |
-              yum install -y tar gzip
               PreviousPipelineID=`cat ~/old_id.txt`
               aws s3 rm "s3://${OldPipelineID}" --recursive
               aws cloudformation delete-stack --stack-name "${PreviousPipelineID}"
