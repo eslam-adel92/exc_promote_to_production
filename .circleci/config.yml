@@ -3,7 +3,6 @@ defaults: &defaults
   docker:
     - image: amazon/aws-cli
 
-# Here the start of the exercise from the course:
 jobs:
   create_and_deploy_front_end:
     <<: *defaults
@@ -30,10 +29,6 @@ jobs:
           root: ~/
           paths:
             - old_id.txt
-      # - save_cache:
-      #     paths:
-      #       - "~/old_id.txt"
-      #     key: bucket-name
 
   promote_to_production:
     <<: *defaults
@@ -49,9 +44,6 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      # - restore_cache:
-      #     keys:
-      #       - "bucket-name"
       - run: |
               yum install -y tar gzip      
       - attach_workspace:
@@ -63,7 +55,6 @@ jobs:
 
 workflows:
   create_and_deploy_front_end:
-    # Run the welcome/run job in its own container
     jobs:
       - create_and_deploy_front_end
       - get_last_deployment_id:
