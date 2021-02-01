@@ -1,56 +1,66 @@
-version: 2.1
-defaults: &defaults
-  docker:
-    - image: amazon/aws-cli
+# version: 2.1
+# defaults: &defaults
+#   docker:
+#     - image: amazon/aws-cli
 
-# Here the start of the exercise from the course:
-jobs:
-  create_and_deploy_front_end:
-    <<: *defaults
-    steps:
-      - checkout
-      - run: aws cloudformation deploy \
-              --region us-west-2 \
-              --template-file bucket.yml \
-              --stack-name "${CIRCLE_WORKFLOW_ID:0:7}" \ # ${CIRCLE_WORKFLOW_ID:0:7} takes the first 7 chars of the variable CIRCLE_CI_WORKFLOW_ID
-              --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - run: aws s3 cp index.html s3://${CIRCLE_WORKFLOW_ID:0:7}/index.html
+# # Here the start of the exercise from the course:
+# jobs:
+#   create_and_deploy_front_end:
+#     <<: *defaults
+#     steps:
+#       - checkout
+#       - run: aws cloudformation deploy \
+#               --region us-west-2 \
+#               --template-file bucket.yml \
+#               --stack-name "${CIRCLE_WORKFLOW_ID:0:7}" \ # ${CIRCLE_WORKFLOW_ID:0:7} takes the first 7 chars of the variable CIRCLE_CI_WORKFLOW_ID
+#               --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID:0:7}"
+#       - run: aws s3 cp index.html s3://${CIRCLE_WORKFLOW_ID:0:7}/index.html
 
-  get_last_deployment_id:
-    <<: *defaults
-    steps:
-      - checkout
-      - run: aws cloudformation \
-              --region us-west-2 \
-              list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
-              --no-paginate --output text
-      - save_cache:
-          paths:
-            - "~/text"
-          key: bucket-name
+#   get_last_deployment_id:
+#     <<: *defaults
+#     steps:
+#       - checkout
+#       - run: aws cloudformation \
+#               --region us-west-2 \
+#               list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+#               --no-paginate --output text
+#       - save_cache:
+#           paths:
+#             - "~/text"
+#           key: bucket-name
 
-  promote_to_production:
-    <<: *defaults
-    steps:
-      - checkout
-      - run: aws cloudformation deploy \
-              --region us-west-2 \
-              --template-file cloudfront.yml \
-              --stack-name production-distro \
-              --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
+#   promote_to_production:
+#     <<: *defaults
+#     steps:
+#       - checkout
+#       - run: aws cloudformation deploy \
+#               --region us-west-2 \
+#               --template-file cloudfront.yml \
+#               --stack-name production-distro \
+#               --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
 
-  clean_up_old_front_end:
-    <<: *defaults
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - "bucket-name"
-      - run: OldPipelineID="cat ~/text" && aws s3 rm "s3://${OldPipelineID}" --recursive
-      - run: OldPipelineID="cat ~/text" && aws cloudformation delete-stack --region us-west-2 --stack-name "${OldPipelineID}"
+#   clean_up_old_front_end:
+#     <<: *defaults
+#     steps:
+#       - checkout
+#       - restore_cache:
+#           keys:
+#             - "bucket-name"
+#       - run: OldPipelineID="cat ~/text" && aws s3 rm "s3://${OldPipelineID}" --recursive
+#       - run: OldPipelineID="cat ~/text" && aws cloudformation delete-stack --region us-west-2 --stack-name "${OldPipelineID}"
 
-workflows:
-  create_and_deploy_front_end:
-    # Run the welcome/run job in its own container
-    jobs:
-      - create_and_deploy_front_end
+# workflows:
+#   create_and_deploy_front_end:
+#     # Run the welcome/run job in its own container
+#     jobs:
+#       - create_and_deploy_front_end
+#       - get_last_deployment_id:
+#           requires:
+#             - "create_and_deploy_front_end"
+#       - promote_to_production:
+#           requires:
+#             - "promote_to_production"
+#             - "get_last_deployment_id"
+#       - clean_up_old_front_end:
+#           requires:
+#             - "promote_to_production"
