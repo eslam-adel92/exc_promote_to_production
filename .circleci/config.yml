@@ -23,12 +23,12 @@ jobs:
       - run: |
               aws cloudformation \
                 list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
-                --no-paginate --output text
+                --no-paginate --output text > ~/old_id.txt
               cat ~/text
       - persist_to_workspace:
           root: ~/
           paths:
-            - text
+            - old_id.txt
       # - save_cache:
       #     paths:
       #       - "~/text"
