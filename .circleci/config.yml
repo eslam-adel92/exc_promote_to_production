@@ -12,9 +12,9 @@ jobs:
       - run: |
               aws cloudformation deploy \
                 --template-file bucket.yml \
-                --stack-name "${CIRCLE_WORKFLOW_ID:0:7}" \
-                --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - run: aws s3 cp index.html s3://${CIRCLE_WORKFLOW_ID:0:7}/index.html
+                --stack-name "eses-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides PipelineID="eses-${CIRCLE_WORKFLOW_ID:0:7}"
+      - run: aws s3 cp index.html s3://eses-${CIRCLE_WORKFLOW_ID:0:7}/index.html
 
   get_last_deployment_id:
     <<: *defaults
