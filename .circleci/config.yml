@@ -24,10 +24,15 @@ jobs:
               aws cloudformation \
                 list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
                 --no-paginate --output text
-      - save_cache:
+              cat ~/text
+      - persist_to_workspace:
+          root: ~/
           paths:
-            - "~/text"
-          key: bucket-name
+            - text
+      # - save_cache:
+      #     paths:
+      #       - "~/text"
+      #     key: bucket-name
 
   promote_to_production:
     <<: *defaults
@@ -43,11 +48,15 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - "bucket-name"
-      - run: aws s3 rm "s3://${OldPipelineID}" --recursive
-      - run: aws cloudformation delete-stack --stack-name "${PreviousPipelineID}"
+      - attach_workspace:
+          at: ~/
+      # - restore_cache:
+      #     keys:
+      #       - "bucket-name"
+      - run: |
+              PreviousPipelineID=`cat ~/text`
+              aws s3 rm "s3://${OldPipelineID}" --recursive
+              aws cloudformation delete-stack --stack-name "${PreviousPipelineID}"
 
 workflows:
   create_and_deploy_front_end:
